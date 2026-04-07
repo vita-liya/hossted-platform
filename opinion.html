@@ -6,7 +6,7 @@
     <title>AI Platform Technical Evaluation</title>
     <style>
         :root {
-            /* Оригинальные цвета бренда */
+
             --white: #FFFFFF; 
             --green: #1AB67D; 
             --dark-teal: #1F3E46; 
@@ -17,7 +17,7 @@
             --warning: #f39c12; 
             --bg-color: #f8fafc;
             
-            /* Вспомогательные переменные */
+           
             --text-main: #1D343D;
             --border-color: #e1e8ed;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -39,11 +39,12 @@
             text-align: center; 
             box-shadow: var(--shadow-md);
             border-bottom: 4px solid var(--green);
+            position: relative;
         }
         header h1 { margin: 0; font-size: 2.2em; font-weight: 800; letter-spacing: -0.02em; }
         header p { margin: 10px 0 0; color: var(--light-blue); font-size: 1.1em; font-weight: 500; }
 
-        .container { max-width: 1100px; margin: -20px auto 40px; padding: 0 20px; position: relative; }
+        .container { max-width: 1050px; margin: -20px auto 40px; padding: 0 20px; position: relative; }
         
         .metric-grid { 
             display: grid; 
@@ -65,6 +66,7 @@
         .metric-card .value { font-size: 2em; font-weight: 800; margin: 5px 0; }
         .metric-card .subtext { font-size: 0.85em; color: var(--steel-blue); }
 
+        /* Cards */
         .card { 
             background: var(--white); 
             border-radius: 6px; 
@@ -73,8 +75,10 @@
             box-shadow: var(--shadow-sm); 
             border: 1px solid var(--border-color);
             border-top: 3px solid var(--dark-blue);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        
+        .card:hover { box-shadow: var(--shadow-md); }
+
         h2 { 
             color: var(--dark-blue); 
             margin-top: 0; 
@@ -84,10 +88,13 @@
         }
         
         p { margin-top: 0; font-size: 0.95em; }
+        
+        /* Lists */
         ul { padding-left: 20px; margin: 15px 0; }
         li { margin-bottom: 10px; font-size: 0.95em; }
         li strong { color: var(--dark-teal); }
 
+        /* Verdict-box */
         .verdict-box { 
             background-color: #fff3cd; 
             border-left: 4px solid #ffecb5; 
@@ -99,6 +106,7 @@
         }
         .verdict-box strong { color: #533f03; }
 
+        /* Tables */
         table { 
             width: 100%; 
             border-collapse: collapse; 
@@ -107,13 +115,14 @@
             border-radius: 6px;
             overflow: hidden;
             box-shadow: 0 0 0 1px var(--border-color);
-            table-layout: fixed; 
+            table-layout: fixed;
         }
         th, td { padding: 12px 15px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border-color); }
         th { background: var(--dark-blue); color: var(--white); font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background-color: #f8fafc; }
 
+        /* Badges */
         .badge { 
             display: inline-block; 
             padding: 6px 12px; 
@@ -126,8 +135,11 @@
         .badge.danger { background: rgba(231, 76, 60, 0.1); color: var(--danger); border: 1px solid rgba(231, 76, 60, 0.3); }
         .badge.warning { background: rgba(243, 156, 18, 0.1); color: var(--warning); border: 1px solid rgba(243, 156, 18, 0.3); }
         .badge.success { background: rgba(26, 182, 125, 0.1); color: var(--green); border: 1px solid rgba(26, 182, 125, 0.3); }
+        
+        .text-danger { color: var(--danger); }
+        .text-success { color: var(--green); }
 
-        /* --- СТИЛИ ДЛЯ ИНТЕРАКТИВНОГО ВОПРОСА/ОТВЕТА --- */
+        /* Details + summary */
         details { width: 100%; }
         summary { 
             cursor: pointer; 
@@ -167,8 +179,8 @@
 
         @media print {
             body { background: var(--white); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .container { margin-top: 0; box-shadow: none; max-width: 100%; }
-            .card { border: 1px solid var(--border-color); border-top: 3px solid var(--dark-blue); box-shadow: none; page-break-inside: avoid; }
+            .container { margin-top: 0; box-shadow: none; max-width: 100%; padding: 0; }
+            .card { border: 1px solid var(--border-color); border-top: 3px solid var(--dark-blue); box-shadow: none; page-break-inside: avoid; margin-bottom: 20px; }
             .metric-grid { display: flex; flex-wrap: wrap; }
             .metric-card { flex: 1; min-width: 200px; box-shadow: none; border: 1px solid var(--border-color); border-top: 4px solid var(--dark-blue); }
             details[open] .qa-box { page-break-inside: avoid; }
@@ -206,6 +218,24 @@
             <h2>Executive Summary</h2>
             <p>While the AI demonstrates a solid grasp of documentation in isolated scenarios (yielding occasional perfect scores), its overall performance is dangerously erratic. For a B2B enterprise support product, a score of 7.5/10 would imply "production-ready with minor flaws."</p>
             <p>However, the current iteration suffers from critical showstoppers: <strong class="text-danger">extreme sycophancy (blindly agreeing with flawed user premises), hallucinatory workarounds, and a broken UI.</strong> It acts as an echo chamber for users' technical mistakes rather than an authoritative guide, making it a liability for production environments in its current state.</p>
+        </div>
+
+        <div class="card">
+            <h2>1. Platform Usability & UI Constraints</h2>
+            <p>The platform suffers from severe operational friction, significantly degrading the user experience and hindering technical troubleshooting:</p>
+            <ul>
+                <li><strong>Broken Core Features:</strong> The <em>Search</em>, <em>Question</em>, <em>Save in Context</em>, and <em>Members Edit</em> functions are entirely unresponsive.</li>
+                <li><strong>Unsuitable for Technical Support:</strong> The "Ask a Question" input box is strictly limited (max 5 lines, non-resizable) and does not allow file attachments.</li>
+                <li><strong>Inconsistent Response Formatting:</strong> During longer conversations, the AI sometimes changes its reply style and starts responses with "Answer:" instead of keeping a natural flow. This makes it feel less conversational and more robotic.</li>
+                <li><strong>UI Synchronization Bugs:</strong> Contextual mismatches are frequent. For instance, the AI correctly diagnosed an issue as MongoDB-related, yet the UI reasoning panel erroneously tagged it as PostgreSQL based on header discrepancies.</li>
+                <li><strong>Missing Context:</strong> No chat history is available in the UI, forcing users to restart complex troubleshooting sessions from scratch.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>2. AI Behavioral Risks: "Blind Compliance"</h2>
+            <p>Initial analysis indicates a dangerous tendency for the AI to exhibit <strong>sycophancy</strong>—blindly agreeing with the user's premise rather than asking clarifying questions.</p> 
+            <p>In test scenarios, instead of challenging flawed assumptions, the AI occasionally validated impossible architectures or suggested unsupported, unsafe workarounds (such as manually altering library JAR files or applying irrelevant configurations). This lack of critical pushback highlights a need for stronger system guardrails before the product can be safely deployed in enterprise environments.</p>
         </div>
 
         <div class="card">
