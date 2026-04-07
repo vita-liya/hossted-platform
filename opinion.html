@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Platform Technical Evaluation</title>
+    <style>
+        :root {
+            /* Оригинальные цвета бренда */
+            --white: #FFFFFF; 
+            --green: #1AB67D; 
+            --dark-teal: #1F3E46; 
+            --dark-blue: #274161; 
+            --light-blue: #B5C3D6; 
+            --steel-blue: #4F647E; 
+            --danger: #e74c3c; 
+            --warning: #f39c12; 
+            --bg-color: #f8fafc;
+            
+            /* Вспомогательные переменные */
+            --text-main: #1D343D;
+            --border-color: #e1e8ed;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            margin: 0; 
+            line-height: 1.6; 
+        }
+
+        header { 
+            background: var(--dark-teal); 
+            color: var(--white); 
+            padding: 40px 20px; 
+            text-align: center; 
+            box-shadow: var(--shadow-md);
+            border-bottom: 4px solid var(--green);
+        }
+        header h1 { margin: 0; font-size: 2.2em; font-weight: 800; letter-spacing: -0.02em; }
+        header p { margin: 10px 0 0; color: var(--light-blue); font-size: 1.1em; font-weight: 500; }
+
+        .container { max-width: 1100px; margin: -20px auto 40px; padding: 0 20px; position: relative; }
+        
+        .metric-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 30px; 
+        }
+        .metric-card { 
+            background: var(--white); 
+            padding: 20px; 
+            border-radius: 6px; 
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            border-top: 4px solid var(--dark-blue);
+        }
+        .metric-card.danger { border-top-color: var(--danger); }
+        .metric-card.success { border-top-color: var(--green); }
+        .metric-card .title { font-size: 0.9em; color: var(--steel-blue); text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em; margin-bottom: 10px;}
+        .metric-card .value { font-size: 2em; font-weight: 800; margin: 5px 0; }
+        .metric-card .subtext { font-size: 0.85em; color: var(--steel-blue); }
+
+        .card { 
+            background: var(--white); 
+            border-radius: 6px; 
+            padding: 30px; 
+            margin-bottom: 30px; 
+            box-shadow: var(--shadow-sm); 
+            border: 1px solid var(--border-color);
+            border-top: 3px solid var(--dark-blue);
+        }
+        
+        h2 { 
+            color: var(--dark-blue); 
+            margin-top: 0; 
+            padding-bottom: 10px; 
+            font-size: 1.5em; 
+            border-bottom: 2px solid var(--light-blue);
+        }
+        
+        p { margin-top: 0; font-size: 0.95em; }
+        ul { padding-left: 20px; margin: 15px 0; }
+        li { margin-bottom: 10px; font-size: 0.95em; }
+        li strong { color: var(--dark-teal); }
+
+        .verdict-box { 
+            background-color: #fff3cd; 
+            border-left: 4px solid #ffecb5; 
+            padding: 15px 20px; 
+            margin: 15px 0 25px; 
+            border-radius: 4px; 
+            font-size: 0.95em;
+            color: #856404;
+        }
+        .verdict-box strong { color: #533f03; }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 0.85em; 
+            margin-top: 15px; 
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px var(--border-color);
+            table-layout: fixed; 
+        }
+        th, td { padding: 12px 15px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--dark-blue); color: var(--white); font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f8fafc; }
+
+        .badge { 
+            display: inline-block; 
+            padding: 6px 12px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            font-size: 1em; 
+            text-align: center;
+            min-width: 30px;
+        }
+        .badge.danger { background: rgba(231, 76, 60, 0.1); color: var(--danger); border: 1px solid rgba(231, 76, 60, 0.3); }
+        .badge.warning { background: rgba(243, 156, 18, 0.1); color: var(--warning); border: 1px solid rgba(243, 156, 18, 0.3); }
+        .badge.success { background: rgba(26, 182, 125, 0.1); color: var(--green); border: 1px solid rgba(26, 182, 125, 0.3); }
+
+        /* --- СТИЛИ ДЛЯ ИНТЕРАКТИВНОГО ВОПРОСА/ОТВЕТА --- */
+        details { width: 100%; }
+        summary { 
+            cursor: pointer; 
+            font-weight: bold; 
+            outline: none; 
+            list-style: none;
+            color: var(--dark-blue);
+            transition: color 0.2s;
+        }
+        summary:hover { color: var(--green); }
+        summary::-webkit-details-marker { display: none; } 
+        summary::before { 
+            content: '▶'; 
+            display: inline-block; 
+            margin-right: 8px; 
+            font-size: 0.8em; 
+            color: var(--light-blue);
+            transition: transform 0.2s ease-in-out; 
+        }
+        details[open] summary::before { transform: rotate(90deg); color: var(--green); }
+        
+        .qa-box {
+            margin-top: 12px;
+            padding: 15px;
+            background-color: var(--white);
+            border-left: 3px solid var(--green);
+            border-radius: 0 6px 6px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 0.95em;
+            color: var(--text-main);
+            font-weight: normal;
+            word-wrap: break-word;
+        }
+        .qa-box strong.q-label { color: var(--dark-teal); display: block; margin-bottom: 4px; }
+        .qa-box strong.a-label { color: var(--steel-blue); display: block; margin-top: 12px; margin-bottom: 4px;}
+        .qa-box .llm-text { color: #333; white-space: pre-wrap; font-family: inherit; }
+
+        @media print {
+            body { background: var(--white); -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .container { margin-top: 0; box-shadow: none; max-width: 100%; }
+            .card { border: 1px solid var(--border-color); border-top: 3px solid var(--dark-blue); box-shadow: none; page-break-inside: avoid; }
+            .metric-grid { display: flex; flex-wrap: wrap; }
+            .metric-card { flex: 1; min-width: 200px; box-shadow: none; border: 1px solid var(--border-color); border-top: 4px solid var(--dark-blue); }
+            details[open] .qa-box { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>AI Platform Technical Evaluation</h1>
+        <p>Expert Feedback, Readiness & Usability Analysis</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="metric-grid">
+            <div class="metric-card success">
+                <div class="title">Technical Knowledge</div>
+                <div class="value text-success">7.0 / 10</div>
+                <div class="subtext">Strong on theoretical docs</div>
+            </div>
+            <div class="metric-card danger">
+                <div class="title">Safety & Reliability</div>
+                <div class="value text-danger">2.0 / 10</div>
+                <div class="subtext">Dangerous Hallucinations</div>
+            </div>
+            <div class="metric-card danger">
+                <div class="title">Usability (UI/UX)</div>
+                <div class="value text-danger">3.0 / 10</div>
+                <div class="subtext">Severe Friction</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Executive Summary</h2>
+            <p>While the AI demonstrates a solid grasp of documentation in isolated scenarios (yielding occasional perfect scores), its overall performance is dangerously erratic. For a B2B enterprise support product, a score of 7.5/10 would imply "production-ready with minor flaws."</p>
+            <p>However, the current iteration suffers from critical showstoppers: <strong class="text-danger">extreme sycophancy (blindly agreeing with flawed user premises), hallucinatory workarounds, and a broken UI.</strong> It acts as an echo chamber for users' technical mistakes rather than an authoritative guide, making it a liability for production environments in its current state.</p>
+        </div>
+
+        <div class="card">
+            <h2>3. Apache Kafka Evaluation</h2>
+            <div class="verdict-box">
+                <strong>Verdict: "Super or Disaster".</strong> The AI provides excellent theoretical overviews (e.g., <code>librdkafka</code> native clients) but frequently suggests deprecated configurations (e.g., Zookeeper for Kafka 4.1) and hallucinates JMX monitoring metrics.
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Scenario / Topic (Click to Expand Q&A)</th>
+                        <th style="width: 40%;">Expert Verdict & Comment</th>
+                        <th style="width: 15%; text-align: center;">Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Node stalling (low resource usage)</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">The problem, I see periodically nodes are stalling for a second or maybe even more without any visible problem and high resource usage, when system have plenty of free resources.</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">The stalling is most likely caused by long garbage‑collection pauses or OS‑level CPU scheduling contention (e.g., high I/O wait, disk queue length, or power‑management throttling) that occur even when free resources appear abundant. Verify this by enabling GC logs (e.g., -Xlog:gc*), inspecting pause times, and correlating them with OS metrics such as iostat, vmstat, and top for I/O wait or CPU frequency changes. If GC is the culprit, reduce the heap or switch to G1/CMS and tune GC parameters...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>No comments, good response.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Java 21 GC tuning (G1 & CMS)</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Suggest me best parameters for G1 and CMS with 40 GB heap on Java 21</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Use a 40 GB heap with -Xms40g -Xmx40g. For G1: -XX:+UseG1GC -XX:MaxGCPauseMillis=200... For CMS: -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=70...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> Java 21 does not have CMS GC it's deprecated on version 9 and removed on version 14.</td>
+                        <td style="text-align: center;"><span class="badge danger">5</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Kafka GC/Heap API monitoring</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">After enabling these setting, is there an API on kafka servers, which I can call to get GC pauses, Heap usage etc ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Kafka exposes JVM metrics via JMX, including GC pause times, heap usage, and thread counts, which can be queried with standard JMX clients or exported to Prometheus... Use a JMX‑to‑Prometheus exporter or a JMX client to retrieve these values programmatically.</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>No comments, good response.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Java version & GC for Kafka v3.9.2</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">What is the best Java version and garbage collector for Kafka v3.9.2, and what is the recommended heap size for busy nodes ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Answer: Kafka 3.9.2 is officially supported on Java 17 and newer, and the most reliable garbage collector for high‑throughput brokers is G1GC, which balances pause time and throughput without requiring manual tuning. For busy nodes that handle large partitions or high message rates, a heap size of 32 GB to 64 GB is typical...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>No comments, good response.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>CMS and XGC vs G1</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Shall try CMS and XGC as well ? Or better to stick with G1 ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Answer: Stick with G1GC; it is the default and most stable collector for Kafka 3.9.2, providing predictable pause times and low manual tuning. CMS is deprecated in Java 21 and can cause fragmentation and unpredictable pauses, while XGC (experimental) is not yet fully supported in Kafka and may introduce instability.</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Correctly advised against CMS/XGC.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Detecting consumer lag</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">How to find out if consumer group is behind the producers and not consuming the most recent messages. I have assumption the messages in consumers are several seconds behind the newest produces messages .</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Use the Kafka consumer‑group command to compare committed offsets with the latest log end offsets: kafka-consumer-groups.sh --bootstrap-server <broker> --describe --group <group> will list each topic‑partition’s lag. Alternatively, monitor the consumer_lag JMX metric or the consumerGroupLag metric exposed by KafkaJS to detect seconds‑level delays between producers and the consumer group.</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> There is no single consumerGroupLag or consumer_lag JMX bean in stock Kafka.</td>
+                        <td style="text-align: center;"><span class="badge danger">5</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Accessing consumer_lag JMX</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">how can I access to these metrics consumer_lag JMX metric or the consumerGroupLag ? What is the bean path ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Use JConsole or a JMX‑CLI tool to query the bean kafka.server:type=ConsumerGroup,group=<groupId>,client-id=<clientId>,topic=<topic>,partition=<partition> and read the consumer_lag attribute...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> Seems wrong beans. Actually the broker simply doesn't expose it natively directly in stock Kafka.</td>
+                        <td style="text-align: center;"><span class="badge danger">0</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>What else I should pay attentions and look ?</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">What else I should pay attentions and look ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Answer: Monitor consumer lag per partition, throughput, and error rates; watch for frequent rebalances, idle consumers, and high fetch latency. Track the consumer_lag JMX attribute on the bean kafka.server:type=ConsumerGroup...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> Again the same, seems our LLM have problems with Kafka consumer group lag monitoring and continuously giving wrong answers.</td>
+                        <td style="text-align: center;"><span class="badge danger">0</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Re-consuming latest 10 messages</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">How I can re-consume latest 10 messages in kafka topic ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">To re‑consume the last ten records, create a consumer, assign the desired partition, call consumer.endOffsets() to obtain the current end offset, subtract ten, and then consumer.seek(partition, endOffset-10) before polling; this will position the consumer at the 10th‑from‑last record.</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Accurate usage of <code>seek()</code>.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Running consumer N messages/seconds behind</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Is it possible to run the consumer in a way that it always consumes N messages or N seconds behind the main group ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Yes – you can approximate a fixed lag by manually setting the consumer’s offset. For a message‑count lag, use seek() to jump back N records (or pause the consumer until the lag reaches N). For a time lag, call offsetsForTimes() with a timestamp N seconds ago and seek to that offset.</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Good response.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Fault tolerant setup (KRaft vs ZK)</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Suggest me production grade Kafka setup with fault tolerance and maximum performance. I need fault tolerant cluster for high loaded environment with 3 maximum 5 kafka nodes.</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Deploy a 3‑node (or 5‑node for higher throughput) cluster... Configure KRaft mode (or a 3‑node Zookeeper ensemble) with replication.factor=3, min.insync.replicas=2...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Warning:</strong> Recent Kafka does not support Zookeeper.</td>
+                        <td style="text-align: center;"><span class="badge warning">8</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Advantages of KRaft vs Zookeeper</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">What are the advantages or disadvantages of KRaft vs Zookeeper ? In a case of KRaft, shall I dedicated servers solely for KRaft or for zookeeper ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">KRaft removes Zookeeper, simplifying operations, reducing latency, and enabling native Raft consensus... Zookeeper offers proven reliability, extensive ecosystem support...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> Zookeeper is deprecated in Kafka 3.x, fully removed in 4.x.x.</td>
+                        <td style="text-align: center;"><span class="badge danger">5</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Using ZK with Kafka 4.1 for reliability</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">So in my Kafka cluster 4.1 version, shall I Still use Zookeeper for maximum reliability, where operations complexity is not a problem ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Answer: In Kafka 4.1 you can still use Zookeeper to benefit from its mature, battle‑tested consensus layer... If operational complexity is acceptable, Zookeeper remains a safe choice...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> The same problem LLM is continuously suggesting KRaft with letting the door open for Zookeeper, but the entire support of Zookeeper is removed since 4.0.</td>
+                        <td style="text-align: center;"><span class="badge danger">5</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Sharing ZK & Kafka hardware</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Shall I share zookeeper services with Kafka nodes on a same hardware ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Answer: Yes, you can run Zookeeper and Kafka on the same hardware for small to medium clusters...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> Not recommended setup even for old pre 4.0 Kafka clusters.</td>
+                        <td style="text-align: center;"><span class="badge danger">2</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Native clients (Rust/Go) vs wrappers</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">For old Kafka clusters with Zookeeper I know that Java is best, maybe even the only native language to use. Is the same for KRaft or the pictures is changed ? For example if I want to works with Kafka from Rust or Go, are there native clients, or just wrappers around Java ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">KRaft does not change the client‑language landscape – the protocol is the same... Java remains the “official” client, but the community has long provided native clients in other languages: Go – sarama... Rust – rdkafka‑rust...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Accurate overview of <code>librdkafka</code>.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Advantage of using librdkafka</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">I don't like idea about using wrapper libs, what is the advantage of using librdkafka ? Is that the only official way, or just the easiest way to implement a client ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Answer: librdkafka implements the Kafka protocol in C, providing a high‑performance, low‑overhead foundation... It is not the only official way; the Apache Kafka project officially maintains the Java client...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Accurate explanation.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Who is behind librdkafka</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Who is behind librdkafka, id that production ready ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Answer: librdkafka is maintained by the open‑source community, primarily by the original author, Martin K. S., and a core group of contributors who collaborate on GitHub...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Currently librdkafka is adopted by Confluent.</td>
+                        <td style="text-align: center;"><span class="badge warning">8</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Is Java still the official way?</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">So is the Java still the official way for kafka clients and all other implementations still in community, or unstable ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Java remains the official, reference client for Apache Kafka and is the only client that receives first‑class support and documentation from the core project. All other language clients (Go, Rust, Python, .NET, etc.) are community‑maintained...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Accurate distinction.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Official way defined by whom?</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Official way defined by whom ? I java client the only one which is developed by Kafka team or Confluent team ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">The “official” client is defined by the Apache Kafka project itself; the Java client shipped in the core distribution is the reference implementation maintained by the Kafka community. Confluent’s Java client is a fork of that same codebase...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Overall good, but not taking into account clients developed by Confluent.</td>
+                        <td style="text-align: center;"><span class="badge success">9</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>4. Apache Cassandra Evaluation</h2>
+            <div class="verdict-box">
+                <strong>Verdict:</strong> Strong on specific node maintenance (backups/JVM cleanup strategies), but completely hallucinates operational commands and config files when pushed outside standard bounds.
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Scenario / Topic (Click to Expand Q&A)</th>
+                        <th style="width: 40%;">Expert Verdict & Comment</th>
+                        <th style="width: 15%; text-align: center;">Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Backup folder cleanup strategy</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">The data mount point is filling up. Upon checking, we found that the backups folder inside the keyspace is consuming most of the space. Please suggest a cleanup strategy for the backups folder. And currently, we do not have any snapshots in the cluster.</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Delete the old backup files that are no longer needed—use a script or find command to remove files older than a set number of days... Verify that no backup jobs are running before deleting...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>All responses in this thread are the rare case where I cannot say any "BUT" . Everything is clear and correct.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Deleting incremental backups safely</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">IS that safe to manuall delete incremental backup files ? Shall I check if these files are in use , or some in open state, before deleting ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Yes, you can safely delete incremental backup files if there are no snapshots or active backup jobs referencing them. Before deleting, run nodetool list snapshots to confirm no snapshots exist...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Everything is clear and correct.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Deleting during running compaction</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">So if there are running compaction, I shall not touch incremental backup files , because these files may be in use by Cassandra internally ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Yes, incremental backup files are not used by compaction; compaction only reads the original SSTables. You can safely delete old incremental backups as long as no snapshot or backup job is running.</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Everything is clear and correct.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Cleanup procedure for snapshots</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Is the applicable to snapshots, of there is some special procedure for cleaning up the snapshots ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Yes, snapshots are separate from incremental backups and must be cleaned with a dedicated command. Run nodetool clearsnapshot -t <snapshot_name> (or nodetool clearsnapshot to delete all) on each node...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Everything is clear and correct.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Capacity planning (3x load sizing)</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">I have an existing Cassandra installation over number of old servers. The servers are on very low utilization %5 cpu with 25% peaks. I need to calculate sizing for new installation with more load (like 3 times more) but with better hardware servers...</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Use the current cluster’s metrics (nodetool tablestats, nodetool cfstats, OpsCenter or DataStax OpsCenter) to capture read/write ops... Scale each dimension proportionally to the expected 3× load, then apply the DataStax Cassandra Sizing Calculator (or the open‑source “cassandra‑sizing‑tool”)...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Warning:</strong> Overall the direction is right... but I was not able to find any of mentioned tools "DataStax Cassandra Sizing" and "open‑source cassandra‑sizing‑tool".</td>
+                        <td style="text-align: center;"><span class="badge warning">8</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>CPU/RAM guidelines per TB</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">What are the general guidelines for planning, How much CPU, RAM I should take as a starting point to chose optimal count of nodes and resources of each node ? For example I need X CPU , Ygb RAM, for keeping N TB of data per node</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Use the current cluster’s metrics to estimate per‑node throughput: 1 CPU core ≈ 10 k read/write ops s⁻¹, 1 GB RAM ≈ 1 k ops s⁻¹, and 1 TB of data per node requires ~2–3 TB of SSD for hot data plus 10–20 % overhead...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>The response looks reasonable and correct. I was not able to find the exact evidence of provided numbers, but assume that it's reasonable.</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>JVM Heap calculation (64/128GB)</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">What About JVM HEAP settings, hos to calculate correctly heap for 64 and 128 gb ram ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">For Cassandra nodes, set the JVM heap to roughly 50 % of the total RAM but never exceed 32 GB (to keep G1 GC efficient). So a 64‑GB node should run with –Xms32g –Xmx32g...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td>Good response. Accurate logic (capped at 32GB).</td>
+                        <td style="text-align: center;"><span class="badge success">10</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Fixing wrong Rack config (rack1/2/3)</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Issue is that our primary cluster showind rack is rack1 for all3 node .where u can see drdc we have 3 nodes as well but its showing rack column value as rack1/2/3. Its misconfigured ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Yes, the rack information is coming from the cassandra.yaml file. All nodes in the primary cluster have the same rack: rack1 setting... Update each node’s cassandra.yaml to the correct rack (rack1, rack2, rack3) and restart the nodes.</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> LLM got the right setting, but in a wrong file. Rack properties are not stored in cassandra.yaml file, but in cassandra-rackdc.properties.</td>
+                        <td style="text-align: center;"><span class="badge danger">5</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Exact setting for Rack change</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">Point to exact setting that I need to change in exact config file</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">In cassandra.yaml on each node, change the rack line...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> The same here it points to wrong file, right setting, right procedure, but wrong file and wrong syntax.</td>
+                        <td style="text-align: center;"><span class="badge danger">2</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Missing setting in cassandra.yaml</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">I can't find mentioned setting in cassandra.yaml file. Shall I add it ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">In cassandra.yaml add the two top‑level keys (or edit them if they already exist)...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> It just refuses to change its "mind" and point to correct file.</td>
+                        <td style="text-align: center;"><span class="badge danger">0</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Repair time estimation (nodetool)</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">We have Cassandra 4.1.5 cluster wil 3 nodes. Each of nodes have about 800GB data. Nodes are with 24Core CPU and 64GB Rams with 32 GB heap. We need to do routine repairs via nodetool repair, and need to understand how long it will take per node. If the Cassandra will adjust repair speed with existing resouces or we need to do fine tunning ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Repair time depends on the amount of data to stream, disk I/O, and network bandwidth, not just CPU/heap... Cassandra auto‑adjusts stream concurrency, but you can tune concurrent_streams, concurrent_reads...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> Cassandra does not auto‑adjust stream concurrency and stream speed, it needs to be adjusted and applied manually per node.</td>
+                        <td style="text-align: center;"><span class="badge danger">2</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Changing repair speed mid-flight</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">So when the repair is already started I cant do any change and just need to rely on Cassandra's autoconfigration ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">No - configuration changes to stream concurrency or throughput take effect only after the repair process is restarted. You can stop the current repair, adjust the relevant settings... Cassandra will auto‑tune stream concurrency based on available resources...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> Cassandra will auto-tune nothing, the answer is totally wrong, setting stream_throughput_out_mb_per_sec does not exist, but there is another setting with similar name stream_throughput_outbound.</td>
+                        <td style="text-align: center;"><span class="badge danger">0</span></td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <details>
+                                <summary>Restarting node to change repair speed</summary>
+                                <div class="qa-box">
+                                    <strong class="q-label">Prompt:</strong>
+                                    <div class="llm-text">So I need to stop the repair, change cassndra.yaml and restart node, every time when I need to change speed of repairs ?</div>
+                                    <strong class="a-label">LLM Answer:</strong>
+                                    <div class="llm-text">Yes - most stream‑speed settings (concurrent_streams, stream_throughput_out_mb_per_sec, etc.) are read at node startup, so you must stop the repair, edit cassandra.yaml, restart the node, and then run the repair again...</div>
+                                </div>
+                            </details>
+                        </td>
+                        <td><strong>Failed:</strong> Totally wrong, the most of throughput setting can be adjusted on the fly by nodetool utility.</td>
+                        <td style="text-align: center;"><span class="badge danger">0</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</body>
+</html>
